@@ -8,6 +8,7 @@ interface ServiceCardProps {
   location: string;
   hours: string;
   imageUrl: string;
+  path?: string;
 }
 
 export const ServiceCard = ({

@@ -2,8 +2,11 @@ import { ServiceCard } from "@/components/ServiceCard";
 import { CategorySection } from "@/components/CategorySection";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+  const navigate = useNavigate();
+
   const featuredServices = [
     {
       title: "Electricista 24/7",
@@ -12,6 +15,7 @@ const Index = () => {
       location: "Luanda",
       hours: "24h",
       imageUrl: "/placeholder.svg",
+      path: "/electricidade"
     },
     {
       title: "Canalizador Express",
@@ -20,6 +24,7 @@ const Index = () => {
       location: "Luanda",
       hours: "8h-18h",
       imageUrl: "/placeholder.svg",
+      path: "/agua"
     },
     {
       title: "Limpeza Residencial",
@@ -28,6 +33,7 @@ const Index = () => {
       location: "Luanda",
       hours: "8h-17h",
       imageUrl: "/placeholder.svg",
+      path: "/casa"
     },
   ];
 
@@ -72,7 +78,13 @@ const Index = () => {
         </h2>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {featuredServices.map((service) => (
-            <ServiceCard key={service.title} {...service} />
+            <div
+              key={service.title}
+              onClick={() => navigate(service.path)}
+              className="cursor-pointer"
+            >
+              <ServiceCard {...service} />
+            </div>
           ))}
         </div>
       </section>
