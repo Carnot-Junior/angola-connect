@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { Wrench, Droplet, Plug, Home, ShoppingCart, FirstAid } from "lucide-react";
+import { Wrench, Droplet, Plug, Home, ShoppingCart, Heart } from "lucide-react";
 
 const categories = [
   { icon: Wrench, name: "Reparos", color: "text-primary" },
@@ -7,7 +7,7 @@ const categories = [
   { icon: Plug, name: "Electricidade", color: "text-yellow-500" },
   { icon: Home, name: "Casa", color: "text-secondary" },
   { icon: ShoppingCart, name: "Compras", color: "text-accent" },
-  { icon: FirstAid, name: "Saúde", color: "text-red-500" },
+  { icon: Heart, name: "Saúde", color: "text-red-500" },
 ];
 
 export const CategorySection = () => {
