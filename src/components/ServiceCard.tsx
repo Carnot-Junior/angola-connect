@@ -1,7 +1,8 @@
 import { Card } from "@/components/ui/card";
-import { Clock, MapPin, Check, MessageCircle } from "lucide-react";
+import { Clock, MapPin, Check, MessageCircle, Star } from "lucide-react";
 import { AngolanRating } from "./AngolanRating";
 import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
 
 interface ServiceCardProps {
   title: string;
@@ -27,7 +28,8 @@ export const ServiceCard = ({
   isVerified = false,
   phoneNumber,
 }: ServiceCardProps) => {
-  const handleWhatsAppClick = () => {
+  const handleWhatsAppClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (phoneNumber) {
       const message = encodeURIComponent(`Olá! Vi seu serviço "${title}" no Angola Connect.`);
       window.open(`https://wa.me/244${phoneNumber}?text=${message}`, "_blank");
@@ -35,45 +37,41 @@ export const ServiceCard = ({
   };
 
   return (
-    <Card className="overflow-hidden transition-all hover:shadow-lg">
-      <div className="aspect-video w-full overflow-hidden">
+    <Card className="group overflow-hidden bg-white transition-all hover:shadow-xl">
+      <div className="relative aspect-video w-full overflow-hidden">
         <img
           src={imageUrl}
           alt={title}
-          className="h-full w-full object-cover transition-transform hover:scale-105"
+          className="h-full w-full object-cover transition-transform group-hover:scale-110"
           loading="lazy"
         />
+        {isVerified && (
+          <Badge className="absolute right-2 top-2 bg-primary/90 text-white">
+            <Check className="mr-1 h-3 w-3" /> Verificado
+          </Badge>
+        )}
       </div>
-      <div className="p-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-xl font-semibold text-secondary">{title}</h3>
-          {isVerified && (
-            <div className="flex items-center text-primary">
-              <Check className="h-4 w-4 mr-1" />
-              <span className="text-sm">Verificado</span>
-            </div>
-          )}
-        </div>
-        <p className="mt-2 text-sm text-gray-600">{description}</p>
+      <div className="p-6">
+        <h3 className="text-xl font-semibold text-secondary">{title}</h3>
+        <p className="mt-2 text-sm text-gray-600 line-clamp-2">{description}</p>
         
         {languages.length > 0 && (
-          <div className="mt-2">
-            <span className="text-sm font-medium">Fala: </span>
-            {languages.map((lang, index) => (
-              <span key={lang} className="text-sm text-gray-600">
-                {lang}{index < languages.length - 1 ? ", " : ""}
-              </span>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {languages.map((lang) => (
+              <Badge key={lang} variant="outline" className="text-xs">
+                {lang}
+              </Badge>
             ))}
           </div>
         )}
         
-        <div className="mt-4 space-y-2">
+        <div className="mt-4 space-y-3">
           <AngolanRating rating={rating} />
-          <div className="flex items-center gap-1">
-            <MapPin className="h-4 w-4 text-accent" />
+          <div className="flex items-center gap-2 text-gray-600">
+            <MapPin className="h-4 w-4 text-primary" />
             <span className="text-sm">{location}</span>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2 text-gray-600">
             <Clock className="h-4 w-4 text-secondary" />
             <span className="text-sm">{hours}</span>
           </div>
