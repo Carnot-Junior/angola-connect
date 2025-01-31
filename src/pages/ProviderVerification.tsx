@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import {
   Form,
   FormControl,
@@ -18,12 +20,17 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 const formSchema = z.object({
+  providerType: z.enum(["individual", "company"], {
+    required_error: "Por favor selecione o tipo de provedor",
+  }),
   fullName: z.string().min(2, {
     message: "Nome deve ter pelo menos 2 caracteres.",
   }),
   idNumber: z.string().min(5, {
     message: "Número de identificação inválido.",
   }),
+  companyName: z.string().optional(),
+  nif: z.string().optional(),
   phoneNumber: z.string().min(9, {
     message: "Número de telefone inválido.",
   }),
@@ -33,6 +40,14 @@ const formSchema = z.object({
   experience: z.string().min(50, {
     message: "Por favor, forneça mais detalhes sobre sua experiência.",
   }),
+}).refine((data) => {
+  if (data.providerType === "company") {
+    return data.companyName && data.nif;
+  }
+  return true;
+}, {
+  message: "Nome da empresa e NIF são obrigatórios para cadastro como empresa",
+  path: ["companyName"],
 });
 
 export default function ProviderVerification() {
@@ -42,13 +57,18 @@ export default function ProviderVerification() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      providerType: "individual",
       fullName: "",
       idNumber: "",
+      companyName: "",
+      nif: "",
       phoneNumber: "",
       address: "",
       experience: "",
     },
   });
+
+  const providerType = form.watch("providerType");
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     console.log("Dados do formulário:", values);
@@ -73,6 +93,33 @@ export default function ProviderVerification() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
+              name="providerType"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel>Tipo de Provedor</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex flex-col space-y-1"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <RadioGroupItem value="individual" id="individual" />
+                        <Label htmlFor="individual">Pessoa Física</Label>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <RadioGroupItem value="company" id="company" />
+                        <Label htmlFor="company">Empresa</Label>
+                      </div>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="fullName"
               render={({ field }) => (
                 <FormItem>
@@ -90,7 +137,9 @@ export default function ProviderVerification() {
               name="idNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Número de Identificação</FormLabel>
+                  <FormLabel>
+                    {providerType === "individual" ? "Número do BI" : "Número do Documento de Identificação"}
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="Seu BI ou Passaporte" {...field} />
                   </FormControl>
@@ -98,6 +147,38 @@ export default function ProviderVerification() {
                 </FormItem>
               )}
             />
+
+            {providerType === "company" && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="companyName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nome da Empresa</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Nome da sua empresa" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="nif"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>NIF</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Número de Identificação Fiscal" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
 
             <FormField
               control={form.control}
