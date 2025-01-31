@@ -1,41 +1,37 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { UserTypeProvider } from "./contexts/UserTypeContext";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import Agua from "./pages/Agua";
+import Casa from "./pages/Casa";
+import Compras from "./pages/Compras";
+import Electricidade from "./pages/Electricidade";
+import Reparos from "./pages/Reparos";
+import Saude from "./pages/Saude";
 import NotFound from "./pages/NotFound";
-import ReparosPage from "./pages/Reparos";
-import AguaPage from "./pages/Agua";
-import ElectricidadePage from "./pages/Electricidade";
-import CasaPage from "./pages/Casa";
-import ComprasPage from "./pages/Compras";
-import SaudePage from "./pages/Saude";
+import ProviderVerification from "./pages/ProviderVerification";
+import AdminProviders from "./pages/AdminProviders";
+import { UserTypeProvider } from "./contexts/UserTypeContext";
+import { Toaster } from "@/components/ui/toaster";
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <UserTypeProvider>
-      <TooltipProvider>
+function App() {
+  return (
+    <Router>
+      <UserTypeProvider>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/agua" element={<Agua />} />
+          <Route path="/casa" element={<Casa />} />
+          <Route path="/compras" element={<Compras />} />
+          <Route path="/electricidade" element={<Electricidade />} />
+          <Route path="/reparos" element={<Reparos />} />
+          <Route path="/saude" element={<Saude />} />
+          <Route path="/provider-verification" element={<ProviderVerification />} />
+          <Route path="/admin/providers" element={<AdminProviders />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
         <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/reparos" element={<ReparosPage />} />
-            <Route path="/agua" element={<AguaPage />} />
-            <Route path="/electricidade" element={<ElectricidadePage />} />
-            <Route path="/casa" element={<CasaPage />} />
-            <Route path="/compras" element={<ComprasPage />} />
-            <Route path="/saude" element={<SaudePage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </UserTypeProvider>
-  </QueryClientProvider>
-);
+      </UserTypeProvider>
+    </Router>
+  );
+}
 
 export default App;

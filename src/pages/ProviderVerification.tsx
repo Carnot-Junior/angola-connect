@@ -51,10 +51,9 @@ export default function ProviderVerification() {
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    // Aqui você implementaria a lógica para salvar os dados
-    console.log(values);
+    console.log("Dados do formulário:", values);
     toast({
-      title: "Solicitação enviada",
+      title: "Solicitação enviada com sucesso!",
       description: "Sua solicitação será analisada em breve.",
     });
     navigate("/");
