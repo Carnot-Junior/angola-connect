@@ -1,7 +1,7 @@
 import { ServiceCard } from "@/components/ServiceCard";
 import { CategorySection } from "@/components/CategorySection";
 import { Button } from "@/components/ui/button";
-import { Search, MapPin } from "lucide-react";
+import { Search, MapPin, Check, Shield, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUserType } from "@/contexts/UserTypeContext";
 import { UserTypeToggle } from "@/components/UserTypeToggle";
