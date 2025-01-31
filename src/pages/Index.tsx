@@ -107,11 +107,21 @@ const Index = () => {
           <div className="rounded-lg bg-white p-6 shadow-lg">
             <h2 className="mb-6 text-xl font-semibold text-secondary">Meus Serviços</h2>
             <div className="space-y-4">
-              <Button className="w-full" onClick={() => navigate("/provider/new-service")}>
+              <Button 
+                className="w-full" 
+                onClick={() => navigate("/provider-verification")}
+              >
+                Tornar-se um Provedor Verificado
+              </Button>
+              <Button 
+                className="w-full" 
+                onClick={() => navigate("/provider/new-service")}
+                variant="outline"
+              >
                 Adicionar Novo Serviço
               </Button>
               <p className="text-center text-gray-600">
-                Comece a oferecer seus serviços para milhares de clientes em potencial.
+                Torne-se um provedor verificado para começar a oferecer seus serviços.
               </p>
             </div>
           </div>
