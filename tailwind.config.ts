@@ -25,15 +25,15 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#E67E22",
+          DEFAULT: "#D42F27", // Vermelho da bandeira de Angola
           foreground: "#FFFFFF",
         },
         secondary: {
-          DEFAULT: "#2C3E50",
+          DEFAULT: "#000000", // Preto da bandeira de Angola
           foreground: "#FFFFFF",
         },
         accent: {
-          DEFAULT: "#58D68D",
+          DEFAULT: "#F4C01E", // Amarelo dourado angolano
           foreground: "#000000",
         },
         destructive: {
@@ -46,7 +46,7 @@ export default {
         },
         card: {
           DEFAULT: "#FFFFFF",
-          foreground: "#2C3E50",
+          foreground: "#000000",
         },
       },
       borderRadius: {
