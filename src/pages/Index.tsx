@@ -6,11 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { useUserType } from "@/contexts/UserTypeContext";
 import { UserTypeToggle } from "@/components/UserTypeToggle";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
-
-const Index = () => {
-  const navigate = useNavigate();
-  const { userType } = useUserType();
+import { PricingPlans } from "@/components/pricing/PricingPlans";
+import { TrialBanner } from "@/components/pricing/TrialBanner";
 
   const featuredServices = [
     {
@@ -50,6 +47,10 @@ const Index = () => {
       path: "/casa"
     },
   ];
+
+const Index = () => {
+  const navigate = useNavigate();
+  const { userType } = useUserType();
 
   return (
     <div className="min-h-screen bg-background">
@@ -163,42 +164,9 @@ const Index = () => {
       ) : (
         /* Provider View */
         <section className="container mx-auto py-16">
-          <div className="max-w-2xl mx-auto">
-            <div className="rounded-lg bg-white p-8 shadow-lg">
-              <h2 className="mb-6 text-2xl font-bold text-secondary">Comece a Oferecer Seus Serviços</h2>
-              <div className="space-y-6">
-                <Button 
-                  className="w-full bg-primary hover:bg-primary/90" 
-                  onClick={() => navigate("/provider-verification")}
-                >
-                  Tornar-se um Provedor Verificado
-                </Button>
-                <Button 
-                  className="w-full" 
-                  onClick={() => navigate("/provider/new-service")}
-                  variant="outline"
-                >
-                  Adicionar Novo Serviço
-                </Button>
-                <div className="rounded-lg bg-accent/10 p-4">
-                  <h3 className="mb-2 font-semibold text-accent-foreground">Benefícios de ser verificado:</h3>
-                  <ul className="space-y-2 text-sm text-gray-600">
-                    <li className="flex items-center">
-                      <Check className="mr-2 h-4 w-4 text-green-500" />
-                      Apareça primeiro nas buscas
-                    </li>
-                    <li className="flex items-center">
-                      <Check className="mr-2 h-4 w-4 text-green-500" />
-                      Receba pagamentos online
-                    </li>
-                    <li className="flex items-center">
-                      <Check className="mr-2 h-4 w-4 text-green-500" />
-                      Selo de verificação
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
+          <div className="max-w-4xl mx-auto space-y-8">
+            <TrialBanner />
+            <PricingPlans />
           </div>
         </section>
       )}
