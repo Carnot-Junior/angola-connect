@@ -1,9 +1,9 @@
+import { ServiceGallery } from "@/components/provider/ServiceGallery";
+import { ServiceHours } from "@/components/provider/ServiceHours";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ServiceGallery } from "@/components/provider/ServiceGallery";
-import { ServiceHours } from "@/components/provider/ServiceHours";
 import { AngolanRating } from "@/components/AngolanRating";
 import {
   MapPin,
@@ -13,7 +13,6 @@ import {
   MessageCircle,
   Share2,
   Check,
-  Star,
 } from "lucide-react";
 
 const mockProvider = {

@@ -7,6 +7,7 @@ import Electricidade from "./pages/Electricidade";
 import Reparos from "./pages/Reparos";
 import Saude from "./pages/Saude";
 import NotFound from "./pages/NotFound";
+import ProviderProfile from "./pages/ProviderProfile";
 import ProviderVerification from "./pages/ProviderVerification";
 import AdminProviders from "./pages/AdminProviders";
 import { UserTypeProvider } from "./contexts/UserTypeContext";
@@ -24,6 +25,7 @@ function App() {
           <Route path="/electricidade" element={<Electricidade />} />
           <Route path="/reparos" element={<Reparos />} />
           <Route path="/saude" element={<Saude />} />
+          <Route path="/provider/:id" element={<ProviderProfile />} />
           <Route path="/provider-verification" element={<ProviderVerification />} />
           <Route path="/admin/providers" element={<AdminProviders />} />
           <Route path="*" element={<NotFound />} />
