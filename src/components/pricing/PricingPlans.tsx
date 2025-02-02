@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 interface PricingPlansProps {
   onPlanSelect?: (planId: string) => void;
@@ -63,6 +64,16 @@ const plans = [
 ];
 
 export function PricingPlans({ onPlanSelect }: PricingPlansProps) {
+  const navigate = useNavigate();
+
+  const handlePlanSelect = (plan: typeof plans[0]) => {
+    if (onPlanSelect) {
+      onPlanSelect(plan.id);
+    } else {
+      navigate("/checkout", { state: { plan } });
+    }
+  };
+
   return (
     <div className="container mx-auto py-16">
       <div className="text-center mb-12">
@@ -116,7 +127,7 @@ export function PricingPlans({ onPlanSelect }: PricingPlansProps) {
                   "w-full",
                   plan.popular ? "bg-primary" : "bg-secondary"
                 )}
-                onClick={() => onPlanSelect?.(plan.id)}
+                onClick={() => handlePlanSelect(plan)}
               >
                 Começar Agora
               </Button>
