@@ -8,10 +8,11 @@ export function UserTypeToggle() {
   const navigate = useNavigate();
 
   const handleToggle = () => {
-    toggleUserType();
-    if (userType === "seeker") {
-      navigate("/provider-verification");
+    if (userType === "provider") {
+      return; // Não muda se já for provider
     }
+    toggleUserType();
+    navigate("/provider-plans");
   };
 
   return (

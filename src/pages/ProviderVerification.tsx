@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import {
@@ -18,6 +18,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { ArrowLeft } from "lucide-react";
 
 const formSchema = z.object({
   providerType: z.enum(["individual", "company"], {
@@ -53,6 +54,13 @@ const formSchema = z.object({
 export default function ProviderVerification() {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+  const planId = location.state?.planId;
+
+  if (!planId) {
+    navigate("/provider-plans");
+    return null;
+  }
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -73,14 +81,23 @@ export default function ProviderVerification() {
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     console.log("Dados do formulário:", values);
     toast({
-      title: "Solicitação enviada com sucesso!",
-      description: "Sua solicitação será analisada em breve.",
+      title: "Cadastro realizado com sucesso!",
+      description: "Agora você será redirecionado para o pagamento.",
     });
-    navigate("/");
+    navigate("/checkout", { state: { planId, providerData: values } });
   };
 
   return (
     <div className="container mx-auto p-6">
+      <Button 
+        variant="ghost" 
+        onClick={() => navigate("/provider-plans")}
+        className="mb-8"
+      >
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Voltar para Planos
+      </Button>
+
       <div className="max-w-2xl mx-auto space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold">Verificação de Provedor</h1>

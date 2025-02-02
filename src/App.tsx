@@ -4,6 +4,7 @@ import { UserTypeProvider } from "@/contexts/UserTypeContext";
 import Index from "@/pages/Index";
 import { CheckoutPage } from "@/components/checkout/CheckoutPage";
 import ProviderVerification from "@/pages/ProviderVerification";
+import ProviderPlans from "@/pages/ProviderPlans";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
           <Route path="/" element={<Index />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/provider-verification" element={<ProviderVerification />} />
+          <Route path="/provider-plans" element={<ProviderPlans />} />
         </Routes>
         <Toaster />
       </Router>
