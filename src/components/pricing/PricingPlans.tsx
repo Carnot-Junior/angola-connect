@@ -10,8 +10,13 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
+interface PricingPlansProps {
+  onPlanSelect?: (planId: string) => void;
+}
+
 const plans = [
   {
+    id: "essential",
     name: "Essencial",
     price: "2.500",
     description: "Para profissionais iniciando no mercado digital",
@@ -25,6 +30,7 @@ const plans = [
     popular: false,
   },
   {
+    id: "advanced",
     name: "Avançado",
     price: "3.700",
     description: "Para profissionais que querem crescer mais rápido",
@@ -39,6 +45,7 @@ const plans = [
     popular: true,
   },
   {
+    id: "premium",
     name: "Premium",
     price: "4.000",
     description: "Para profissionais que querem dominar o mercado",
@@ -55,7 +62,7 @@ const plans = [
   },
 ];
 
-export function PricingPlans() {
+export function PricingPlans({ onPlanSelect }: PricingPlansProps) {
   return (
     <div className="container mx-auto py-16">
       <div className="text-center mb-12">
@@ -68,7 +75,7 @@ export function PricingPlans() {
       <div className="grid md:grid-cols-3 gap-8">
         {plans.map((plan) => (
           <Card
-            key={plan.name}
+            key={plan.id}
             className={cn(
               "relative flex flex-col",
               plan.popular && "border-2 border-primary shadow-lg"
@@ -109,6 +116,7 @@ export function PricingPlans() {
                   "w-full",
                   plan.popular ? "bg-primary" : "bg-secondary"
                 )}
+                onClick={() => onPlanSelect?.(plan.id)}
               >
                 Começar Agora
               </Button>

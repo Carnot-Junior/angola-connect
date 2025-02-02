@@ -1,8 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { useUserType } from "@/contexts/UserTypeContext";
+import { useNavigate } from "react-router-dom";
 
 export function CTASection() {
   const { userType } = useUserType();
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (userType === "provider") {
+      navigate("/provider-verification");
+    } else {
+      navigate("/todos-servicos");
+    }
+  };
 
   return (
     <section className="bg-accent py-16">
@@ -18,6 +28,7 @@ export function CTASection() {
         <Button
           size="lg"
           className="bg-primary text-white hover:bg-primary/90"
+          onClick={handleClick}
         >
           {userType === "seeker" ? "Encontrar Agora" : "Começar"}
         </Button>
