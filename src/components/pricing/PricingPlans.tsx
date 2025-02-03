@@ -67,11 +67,16 @@ export function PricingPlans({ onPlanSelect }: PricingPlansProps) {
   const navigate = useNavigate();
 
   const handlePlanSelect = (plan: typeof plans[0]) => {
-    if (onPlanSelect) {
-      onPlanSelect(plan.id);
-    } else {
-      navigate("/checkout", { state: { plan } });
-    }
+    navigate("/provider-verification", { 
+      state: { 
+        plan: {
+          id: plan.id,
+          name: plan.name,
+          price: plan.price,
+          description: plan.description
+        }
+      }
+    });
   };
 
   return (

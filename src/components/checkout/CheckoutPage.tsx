@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Copy } from "lucide-react";
+import { Copy, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 
 interface PaymentDetails {
@@ -19,14 +19,13 @@ export function CheckoutPage() {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
 
-  // Get plan details from location state
-  const plan = location.state?.plan;
-  if (!plan) {
-    navigate("/");
+  const { plan, providerData } = location.state || {};
+  
+  if (!plan || !providerData) {
+    navigate("/provider-plans");
     return null;
   }
 
-  // Generate payment details (in a real app, this would come from your backend)
   const paymentDetails: PaymentDetails = {
     bankName: "Banco BAI",
     accountNumber: "00000000000000000",
@@ -47,6 +46,15 @@ export function CheckoutPage() {
 
   return (
     <div className="container mx-auto py-8 px-4">
+      <Button 
+        variant="ghost" 
+        onClick={() => navigate(-1)}
+        className="mb-8"
+      >
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Voltar
+      </Button>
+
       <div className="max-w-2xl mx-auto">
         <h1 className="text-3xl font-bold mb-8 text-center">Finalizar Pagamento</h1>
         

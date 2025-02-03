@@ -55,9 +55,9 @@ export default function ProviderVerification() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const planId = location.state?.planId;
+  const selectedPlan = location.state?.plan;
 
-  if (!planId) {
+  if (!selectedPlan) {
     navigate("/provider-plans");
     return null;
   }
@@ -84,7 +84,12 @@ export default function ProviderVerification() {
       title: "Cadastro realizado com sucesso!",
       description: "Agora você será redirecionado para o pagamento.",
     });
-    navigate("/checkout", { state: { planId, providerData: values } });
+    navigate("/checkout", { 
+      state: { 
+        plan: selectedPlan,
+        providerData: values 
+      } 
+    });
   };
 
   return (
@@ -104,6 +109,12 @@ export default function ProviderVerification() {
           <p className="text-muted-foreground">
             Preencha os dados abaixo para se tornar um provedor verificado
           </p>
+        </div>
+
+        <div className="bg-accent/10 p-4 rounded-lg mb-6">
+          <h2 className="font-semibold mb-2">Plano Selecionado: {selectedPlan.name}</h2>
+          <p className="text-sm text-muted-foreground">{selectedPlan.description}</p>
+          <p className="text-sm font-medium mt-2">{selectedPlan.price} KZ/mês</p>
         </div>
 
         <Form {...form}>
@@ -250,11 +261,11 @@ export default function ProviderVerification() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/provider-plans")}
               >
                 Voltar
               </Button>
-              <Button type="submit">Enviar Solicitação</Button>
+              <Button type="submit">Continuar para Pagamento</Button>
             </div>
           </form>
         </Form>
