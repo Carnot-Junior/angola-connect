@@ -1,24 +1,15 @@
-import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { ArrowLeft } from "lucide-react";
+import { SelectedPlanCard } from "@/components/provider/SelectedPlanCard";
+import { ProviderTypeField } from "@/components/provider/ProviderTypeField";
+import { CompanyFields } from "@/components/provider/CompanyFields";
+import { PersonalInfoFields } from "@/components/provider/PersonalInfoFields";
 
 const formSchema = z.object({
   providerType: z.enum(["individual", "company"], {
@@ -76,10 +67,7 @@ export default function ProviderVerification() {
     },
   });
 
-  const providerType = form.watch("providerType");
-
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log("Dados do formulário:", values);
     toast({
       title: "Cadastro realizado com sucesso!",
       description: "Agora você será redirecionado para o pagamento.",
@@ -91,6 +79,8 @@ export default function ProviderVerification() {
       } 
     });
   };
+
+  const providerType = form.watch("providerType");
 
   return (
     <div className="container mx-auto p-6">
@@ -111,151 +101,17 @@ export default function ProviderVerification() {
           </p>
         </div>
 
-        <div className="bg-accent/10 p-4 rounded-lg mb-6">
-          <h2 className="font-semibold mb-2">Plano Selecionado: {selectedPlan.name}</h2>
-          <p className="text-sm text-muted-foreground">{selectedPlan.description}</p>
-          <p className="text-sm font-medium mt-2">{selectedPlan.price} KZ/mês</p>
-        </div>
+        <SelectedPlanCard 
+          name={selectedPlan.name}
+          description={selectedPlan.description}
+          price={selectedPlan.price}
+        />
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="providerType"
-              render={({ field }) => (
-                <FormItem className="space-y-3">
-                  <FormLabel>Tipo de Provedor</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className="flex flex-col space-y-1"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <RadioGroupItem value="individual" id="individual" />
-                        <Label htmlFor="individual">Pessoa Física</Label>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <RadioGroupItem value="company" id="company" />
-                        <Label htmlFor="company">Empresa</Label>
-                      </div>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="fullName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nome Completo</FormLabel>
-                  <FormControl>
-                    <Input placeholder="João da Silva" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="idNumber"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    {providerType === "individual" ? "Número do BI" : "Número do Documento de Identificação"}
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder="Seu BI ou Passaporte" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {providerType === "company" && (
-              <>
-                <FormField
-                  control={form.control}
-                  name="companyName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome da Empresa</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Nome da sua empresa" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="nif"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>NIF</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Número de Identificação Fiscal" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </>
-            )}
-
-            <FormField
-              control={form.control}
-              name="phoneNumber"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Número de Telefone</FormLabel>
-                  <FormControl>
-                    <Input placeholder="+244 923 456 789" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Endereço</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Sua morada completa" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="experience"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Experiência Profissional</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Descreva sua experiência e qualificações..."
-                      className="min-h-[120px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Inclua informações sobre sua experiência, certificações e áreas de especialização.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <ProviderTypeField control={form.control} />
+            <CompanyFields control={form.control} visible={providerType === "company"} />
+            <PersonalInfoFields control={form.control} />
 
             <div className="flex justify-between">
               <Button
