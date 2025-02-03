@@ -4,7 +4,6 @@ import { HeroSection } from "@/components/home/HeroSection";
 import { FeaturedServices } from "@/components/home/FeaturedServices";
 import { TrustBadges } from "@/components/home/TrustBadges";
 import { ProviderSection } from "@/components/home/ProviderSection";
-import { CTASection } from "@/components/home/CTASection";
 
 const Index = () => {
   const { userType } = useUserType();
@@ -27,8 +26,6 @@ const Index = () => {
       ) : (
         <ProviderSection />
       )}
-
-      <CTASection />
     </div>
   );
 };
