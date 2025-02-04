@@ -58,7 +58,7 @@ export default function AdminProviders() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/')}
             className="h-10 w-10"
           >
             <ArrowLeft className="h-4 w-4" />
