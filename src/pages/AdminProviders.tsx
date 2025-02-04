@@ -57,11 +57,11 @@ export default function AdminProviders() {
         <div className="flex items-center gap-4">
           <Button
             variant="outline"
-            size="icon"
             onClick={() => navigate('/')}
-            className="h-10 w-10"
+            className="flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
+            Voltar para Início
           </Button>
           <h1 className="text-3xl font-bold">Gestão de Provedores</h1>
         </div>
