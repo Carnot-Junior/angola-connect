@@ -25,16 +25,16 @@ import { ArrowLeft, CheckCircle, XCircle } from "lucide-react";
 
 type Provider = {
   id: string;
-  business_name: string;
-  description: string;
+  business_name: string | null;
+  description: string | null;
   status: "pending" | "approved" | "rejected" | "suspended";
-  verified: boolean;
-  phone: string;
+  verified: boolean | null;
+  phone: string | null;
   created_at: string;
   profiles: {
-    full_name: string;
-    email: string;
-  };
+    full_name: string | null;
+    email: string | null;
+  } | null;
 };
 
 export default function AdminProviders() {
@@ -93,9 +93,9 @@ export default function AdminProviders() {
   const getStatusBadge = (status: Provider["status"]) => {
     const variants = {
       pending: "default",
-      approved: "success",
+      approved: "secondary",
       rejected: "destructive",
-      suspended: "warning",
+      suspended: "outline",
     } as const;
 
     return (
@@ -141,9 +141,9 @@ export default function AdminProviders() {
           <TableBody>
             {providers?.map((provider) => (
               <TableRow key={provider.id}>
-                <TableCell>{provider.profiles.full_name}</TableCell>
+                <TableCell>{provider.profiles?.full_name}</TableCell>
                 <TableCell>{provider.business_name}</TableCell>
-                <TableCell>{provider.profiles.email}</TableCell>
+                <TableCell>{provider.profiles?.email}</TableCell>
                 <TableCell>{provider.phone}</TableCell>
                 <TableCell>{getStatusBadge(provider.status)}</TableCell>
                 <TableCell>
@@ -179,7 +179,7 @@ export default function AdminProviders() {
             <div className="space-y-4">
               <div>
                 <h4 className="font-medium">Nome Completo</h4>
-                <p>{selectedProvider.profiles.full_name}</p>
+                <p>{selectedProvider.profiles?.full_name}</p>
               </div>
               <div>
                 <h4 className="font-medium">Nome da Empresa</h4>
