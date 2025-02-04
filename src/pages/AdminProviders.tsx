@@ -1,121 +1,246 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/components/ui/use-toast";
-import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft, CheckCircle, XCircle } from "lucide-react";
 
-// Dados mockados para exemplo
-const mockProviders = [
-  {
-    id: 1,
-    fullName: "João da Silva",
-    idNumber: "123456789",
-    phoneNumber: "+244 923 456 789",
-    address: "Rua Principal, 123, Luanda",
-    experience: "5 anos de experiência em serviços elétricos...",
-    status: "pending",
-  },
-  {
-    id: 2,
-    fullName: "Maria Santos",
-    idNumber: "987654321",
-    phoneNumber: "+244 923 456 790",
-    address: "Avenida Central, 456, Luanda",
-    experience: "10 anos de experiência em encanamento...",
-    status: "approved",
-  },
-];
+type Provider = {
+  id: string;
+  business_name: string;
+  description: string;
+  status: "pending" | "approved" | "rejected" | "suspended";
+  verified: boolean;
+  phone: string;
+  created_at: string;
+  profiles: {
+    full_name: string;
+    email: string;
+  };
+};
 
 export default function AdminProviders() {
-  const [providers, setProviders] = useState(mockProviders);
-  const { toast } = useToast();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
 
-  const handleApprove = (id: number) => {
-    setProviders(
-      providers.map((provider) =>
-        provider.id === id ? { ...provider, status: "approved" } : provider
-      )
-    );
+  const { data: providers, refetch } = useQuery({
+    queryKey: ["providers"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("providers")
+        .select(`
+          *,
+          profiles:user_id (
+            full_name,
+            email
+          )
+        `)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data as Provider[];
+    },
+  });
+
+  const updateProviderStatus = async (
+    providerId: string,
+    status: Provider["status"]
+  ) => {
+    const { error } = await supabase
+      .from("providers")
+      .update({ status })
+      .eq("id", providerId);
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Erro ao atualizar status",
+        description: error.message,
+      });
+      return;
+    }
+
     toast({
-      title: "Provedor aprovado",
-      description: "O provedor foi aprovado com sucesso.",
+      title: "Status atualizado com sucesso",
+      description: `O prestador foi ${
+        status === "approved" ? "aprovado" : "rejeitado"
+      }.`,
     });
+
+    refetch();
+    setSelectedProvider(null);
+  };
+
+  const getStatusBadge = (status: Provider["status"]) => {
+    const variants = {
+      pending: "default",
+      approved: "success",
+      rejected: "destructive",
+      suspended: "warning",
+    } as const;
+
+    return (
+      <Badge variant={variants[status]}>
+        {status === "pending" && "Pendente"}
+        {status === "approved" && "Aprovado"}
+        {status === "rejected" && "Rejeitado"}
+        {status === "suspended" && "Suspenso"}
+      </Badge>
+    );
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            onClick={() => navigate('/')}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Voltar para Início
-          </Button>
-          <h1 className="text-3xl font-bold">Gestão de Provedores</h1>
-        </div>
-
-        <div className="grid gap-6">
-          {providers.map((provider) => (
-            <Card key={provider.id}>
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle>{provider.fullName}</CardTitle>
-                    <CardDescription>ID: {provider.idNumber}</CardDescription>
-                  </div>
-                  <Badge
-                    variant={provider.status === "approved" ? "default" : "secondary"}
-                  >
-                    {provider.status === "approved" ? "Aprovado" : "Pendente"}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-sm font-medium">Contato</p>
-                    <p className="text-sm text-muted-foreground">
-                      {provider.phoneNumber}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Endereço</p>
-                    <p className="text-sm text-muted-foreground">
-                      {provider.address}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Experiência</p>
-                    <p className="text-sm text-muted-foreground">
-                      {provider.experience}
-                    </p>
-                  </div>
-                  {provider.status === "pending" && (
-                    <Button
-                      className="w-full"
-                      onClick={() => handleApprove(provider.id)}
-                    >
-                      Aprovar Provedor
-                    </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+    <div className="container mx-auto py-8">
+      <div className="mb-8">
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/")}
+          className="mb-4"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Voltar para Início
+        </Button>
+        <h1 className="text-3xl font-bold">Gestão de Prestadores</h1>
+        <p className="text-muted-foreground">
+          Gerencie os prestadores de serviço da plataforma
+        </p>
       </div>
+
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nome</TableHead>
+              <TableHead>Empresa</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Telefone</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Data de Cadastro</TableHead>
+              <TableHead>Ações</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {providers?.map((provider) => (
+              <TableRow key={provider.id}>
+                <TableCell>{provider.profiles.full_name}</TableCell>
+                <TableCell>{provider.business_name}</TableCell>
+                <TableCell>{provider.profiles.email}</TableCell>
+                <TableCell>{provider.phone}</TableCell>
+                <TableCell>{getStatusBadge(provider.status)}</TableCell>
+                <TableCell>
+                  {new Date(provider.created_at).toLocaleDateString("pt-BR")}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="outline"
+                    onClick={() => setSelectedProvider(provider)}
+                  >
+                    Detalhes
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      <Dialog
+        open={!!selectedProvider}
+        onOpenChange={() => setSelectedProvider(null)}
+      >
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Detalhes do Prestador</DialogTitle>
+            <DialogDescription>
+              Revise as informações e atualize o status do prestador
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedProvider && (
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium">Nome Completo</h4>
+                <p>{selectedProvider.profiles.full_name}</p>
+              </div>
+              <div>
+                <h4 className="font-medium">Nome da Empresa</h4>
+                <p>{selectedProvider.business_name}</p>
+              </div>
+              <div>
+                <h4 className="font-medium">Descrição</h4>
+                <p>{selectedProvider.description}</p>
+              </div>
+              <div>
+                <h4 className="font-medium">Status Atual</h4>
+                <p>{getStatusBadge(selectedProvider.status)}</p>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="flex gap-2">
+            {selectedProvider?.status === "pending" && (
+              <>
+                <Button
+                  variant="destructive"
+                  onClick={() =>
+                    updateProviderStatus(selectedProvider.id, "rejected")
+                  }
+                >
+                  <XCircle className="mr-2 h-4 w-4" />
+                  Rejeitar
+                </Button>
+                <Button
+                  onClick={() =>
+                    updateProviderStatus(selectedProvider.id, "approved")
+                  }
+                >
+                  <CheckCircle className="mr-2 h-4 w-4" />
+                  Aprovar
+                </Button>
+              </>
+            )}
+            {selectedProvider?.status === "approved" && (
+              <Button
+                variant="destructive"
+                onClick={() =>
+                  updateProviderStatus(selectedProvider.id, "suspended")
+                }
+              >
+                Suspender
+              </Button>
+            )}
+            {(selectedProvider?.status === "rejected" ||
+              selectedProvider?.status === "suspended") && (
+              <Button
+                onClick={() =>
+                  updateProviderStatus(selectedProvider.id, "approved")
+                }
+              >
+                Reativar
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
