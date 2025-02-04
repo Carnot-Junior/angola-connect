@@ -9,6 +9,8 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 // Dados mockados para exemplo
 const mockProviders = [
@@ -35,13 +37,12 @@ const mockProviders = [
 export default function AdminProviders() {
   const [providers, setProviders] = useState(mockProviders);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleApprove = (id: number) => {
     setProviders(
       providers.map((provider) =>
-        provider.id === id
-          ? { ...provider, status: "approved" }
-          : provider
+        provider.id === id ? { ...provider, status: "approved" } : provider
       )
     );
     toast({
@@ -53,7 +54,15 @@ export default function AdminProviders() {
   return (
     <div className="container mx-auto p-6">
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => navigate(-1)}
+            className="h-10 w-10"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
           <h1 className="text-3xl font-bold">Gestão de Provedores</h1>
         </div>
 
