@@ -62,12 +62,12 @@ export default function AdminReviews() {
         .select(`
           *,
           service:services(title),
-          profiles:user_id(full_name, email),
+          profiles:profiles!reviews_user_id_fkey(full_name, email),
           review_reports(
             id,
             reason,
             status,
-            reporter:reporter_id(full_name, email)
+            reporter:profiles!review_reports_reporter_id_fkey(full_name, email)
           )
         `)
         .order("created_at", { ascending: false });
