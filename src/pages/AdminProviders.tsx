@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, CheckCircle, XCircle, Trash2, Edit } from "lucide-react";
+import { EditProviderDialog } from "@/components/admin/EditProviderDialog";
 
 interface ProviderProfile {
   full_name: string | null;
@@ -46,6 +47,7 @@ export default function AdminProviders() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const { data: providers, refetch } = useQuery({
     queryKey: ["providers"],
@@ -178,6 +180,17 @@ export default function AdminProviders() {
                   <Button
                     variant="outline"
                     size="sm"
+                    onClick={() => {
+                      setSelectedProvider(provider);
+                      setIsEditDialogOpen(true);
+                    }}
+                  >
+                    <Edit className="mr-2 h-4 w-4" />
+                    Editar
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => setSelectedProvider(provider)}
                   >
                     <Edit className="mr-2 h-4 w-4" />
@@ -191,8 +204,8 @@ export default function AdminProviders() {
       </div>
 
       <Dialog
-        open={!!selectedProvider}
-        onOpenChange={() => setSelectedProvider(null)}
+        open={!!selectedProvider && !isEditDialogOpen}
+        onOpenChange={(open) => !open && setSelectedProvider(null)}
       >
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
@@ -277,6 +290,13 @@ export default function AdminProviders() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <EditProviderDialog
+        provider={selectedProvider}
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        onSuccess={refetch}
+      />
     </div>
   );
 }
