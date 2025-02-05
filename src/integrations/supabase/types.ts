@@ -75,6 +75,47 @@ export type Database = {
         }
         Relationships: []
       }
+      review_reports: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          id: string
+          reason: string
+          reporter_id: string
+          review_id: string
+          status: Database["public"]["Enums"]["report_status"] | null
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          id?: string
+          reason: string
+          reporter_id: string
+          review_id: string
+          status?: Database["public"]["Enums"]["report_status"] | null
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          id?: string
+          reason?: string
+          reporter_id?: string
+          review_id?: string
+          status?: Database["public"]["Enums"]["report_status"] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_reports_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           comment: string | null
@@ -275,6 +316,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user" | "provider"
       provider_status: "pending" | "approved" | "rejected" | "suspended"
+      report_status: "pending" | "resolved" | "dismissed"
     }
     CompositeTypes: {
       [_ in never]: never
