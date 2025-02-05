@@ -62,7 +62,7 @@ export default function AdminProviders() {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data as Provider[];
+      return data as unknown as Provider[];
     },
   });
 
