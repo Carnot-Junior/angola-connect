@@ -21,20 +21,25 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, CheckCircle, XCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle, XCircle, Trash2, Edit } from "lucide-react";
+
+interface ProviderProfile {
+  full_name: string | null;
+  email: string | null;
+}
 
 type Provider = {
   id: string;
+  user_id: string;
   business_name: string | null;
   description: string | null;
   status: "pending" | "approved" | "rejected" | "suspended";
   verified: boolean | null;
   phone: string | null;
+  address: string | null;
   created_at: string;
-  profiles: {
-    full_name: string | null;
-    email: string | null;
-  } | null;
+  updated_at: string;
+  profiles: ProviderProfile | null;
 };
 
 export default function AdminProviders() {
@@ -90,6 +95,30 @@ export default function AdminProviders() {
     setSelectedProvider(null);
   };
 
+  const deleteProvider = async (providerId: string) => {
+    const { error } = await supabase
+      .from("providers")
+      .delete()
+      .eq("id", providerId);
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Erro ao excluir prestador",
+        description: error.message,
+      });
+      return;
+    }
+
+    toast({
+      title: "Prestador excluído com sucesso",
+      description: "O prestador foi removido do sistema.",
+    });
+
+    refetch();
+    setSelectedProvider(null);
+  };
+
   const getStatusBadge = (status: Provider["status"]) => {
     const variants = {
       pending: "default",
@@ -111,11 +140,7 @@ export default function AdminProviders() {
   return (
     <div className="container mx-auto py-8">
       <div className="mb-8">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/")}
-          className="mb-4"
-        >
+        <Button variant="ghost" onClick={() => navigate("/")} className="mb-4">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Voltar para Início
         </Button>
@@ -149,11 +174,13 @@ export default function AdminProviders() {
                 <TableCell>
                   {new Date(provider.created_at).toLocaleDateString("pt-BR")}
                 </TableCell>
-                <TableCell>
+                <TableCell className="space-x-2">
                   <Button
                     variant="outline"
+                    size="sm"
                     onClick={() => setSelectedProvider(provider)}
                   >
+                    <Edit className="mr-2 h-4 w-4" />
                     Detalhes
                   </Button>
                 </TableCell>
@@ -225,6 +252,7 @@ export default function AdminProviders() {
                   updateProviderStatus(selectedProvider.id, "suspended")
                 }
               >
+                <XCircle className="mr-2 h-4 w-4" />
                 Suspender
               </Button>
             )}
@@ -235,9 +263,17 @@ export default function AdminProviders() {
                   updateProviderStatus(selectedProvider.id, "approved")
                 }
               >
+                <CheckCircle className="mr-2 h-4 w-4" />
                 Reativar
               </Button>
             )}
+            <Button
+              variant="destructive"
+              onClick={() => selectedProvider && deleteProvider(selectedProvider.id)}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Excluir Prestador
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
