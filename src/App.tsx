@@ -9,6 +9,7 @@ import { CheckoutPage } from "@/components/checkout/CheckoutPage";
 import ProviderVerification from "@/pages/ProviderVerification";
 import ProviderPlans from "@/pages/ProviderPlans";
 import AdminProviders from "@/pages/AdminProviders";
+import AdminPlans from "@/pages/AdminPlans";
 
 function App() {
   return (
@@ -47,6 +48,14 @@ function App() {
               element={
                 <AuthGuard requireAdmin>
                   <AdminProviders />
+                </AuthGuard>
+              }
+            />
+            <Route
+              path="/admin/plans"
+              element={
+                <AuthGuard requireAdmin>
+                  <AdminPlans />
                 </AuthGuard>
               }
             />

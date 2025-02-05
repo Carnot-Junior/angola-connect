@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -10,293 +9,104 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, CheckCircle, XCircle, Trash2, Edit } from "lucide-react";
-import { EditProviderDialog } from "@/components/admin/EditProviderDialog";
-
-interface ProviderProfile {
-  full_name: string | null;
-  email: string | null;
-}
-
-type Provider = {
-  id: string;
-  user_id: string;
-  business_name: string | null;
-  description: string | null;
-  status: "pending" | "approved" | "rejected" | "suspended";
-  verified: boolean | null;
-  phone: string | null;
-  address: string | null;
-  created_at: string;
-  updated_at: string;
-  profiles: ProviderProfile | null;
-};
+import { Settings, CreditCard } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function AdminProviders() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
-  const { data: providers, refetch } = useQuery({
+  const { data: providers, isLoading } = useQuery({
     queryKey: ["providers"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("providers")
-        .select(`
-          *,
-          profiles:user_id (
-            full_name,
-            email
-          )
-        `)
+        .select("*")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      return data as unknown as Provider[];
+      if (error) {
+        toast({
+          title: "Erro ao carregar provedores",
+          description: error.message,
+          variant: "destructive",
+        });
+        return [];
+      }
+
+      return data;
     },
   });
 
-  const updateProviderStatus = async (
-    providerId: string,
-    status: Provider["status"]
-  ) => {
-    const { error } = await supabase
-      .from("providers")
-      .update({ status })
-      .eq("id", providerId);
-
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Erro ao atualizar status",
-        description: error.message,
-      });
-      return;
-    }
-
-    toast({
-      title: "Status atualizado com sucesso",
-      description: `O prestador foi ${
-        status === "approved" ? "aprovado" : "rejeitado"
-      }.`,
-    });
-
-    refetch();
-    setSelectedProvider(null);
-  };
-
-  const deleteProvider = async (providerId: string) => {
-    const { error } = await supabase
-      .from("providers")
-      .delete()
-      .eq("id", providerId);
-
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Erro ao excluir prestador",
-        description: error.message,
-      });
-      return;
-    }
-
-    toast({
-      title: "Prestador excluído com sucesso",
-      description: "O prestador foi removido do sistema.",
-    });
-
-    refetch();
-    setSelectedProvider(null);
-  };
-
-  const getStatusBadge = (status: Provider["status"]) => {
-    const variants = {
-      pending: "default",
-      approved: "secondary",
-      rejected: "destructive",
-      suspended: "outline",
-    } as const;
-
-    return (
-      <Badge variant={variants[status]}>
-        {status === "pending" && "Pendente"}
-        {status === "approved" && "Aprovado"}
-        {status === "rejected" && "Rejeitado"}
-        {status === "suspended" && "Suspenso"}
-      </Badge>
-    );
-  };
-
   return (
     <div className="container mx-auto py-8">
-      <div className="mb-8">
-        <Button variant="ghost" onClick={() => navigate("/")} className="mb-4">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Voltar para Início
-        </Button>
-        <h1 className="text-3xl font-bold">Gestão de Prestadores</h1>
-        <p className="text-muted-foreground">
-          Gerencie os prestadores de serviço da plataforma
-        </p>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-2xl font-bold">Painel Administrativo</h1>
+        <div className="space-x-4">
+          <Button onClick={() => navigate("/admin/plans")}>
+            <CreditCard className="mr-2 h-4 w-4" />
+            Gerenciar Planos
+          </Button>
+          <Button variant="outline" onClick={() => navigate("/")}>
+            <Settings className="mr-2 h-4 w-4" />
+            Configurações
+          </Button>
+        </div>
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nome</TableHead>
-              <TableHead>Empresa</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Telefone</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Data de Cadastro</TableHead>
-              <TableHead>Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {providers?.map((provider) => (
-              <TableRow key={provider.id}>
-                <TableCell>{provider.profiles?.full_name}</TableCell>
-                <TableCell>{provider.business_name}</TableCell>
-                <TableCell>{provider.profiles?.email}</TableCell>
-                <TableCell>{provider.phone}</TableCell>
-                <TableCell>{getStatusBadge(provider.status)}</TableCell>
-                <TableCell>
-                  {new Date(provider.created_at).toLocaleDateString("pt-BR")}
-                </TableCell>
-                <TableCell className="space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedProvider(provider);
-                      setIsEditDialogOpen(true);
-                    }}
-                  >
-                    <Edit className="mr-2 h-4 w-4" />
-                    Editar
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSelectedProvider(provider)}
-                  >
-                    <Edit className="mr-2 h-4 w-4" />
-                    Detalhes
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <div className="bg-white rounded-lg shadow">
+        <div className="p-6">
+          <h2 className="text-xl font-semibold mb-6">Provedores</h2>
 
-      <Dialog
-        open={!!selectedProvider && !isEditDialogOpen}
-        onOpenChange={(open) => !open && setSelectedProvider(null)}
-      >
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Detalhes do Prestador</DialogTitle>
-            <DialogDescription>
-              Revise as informações e atualize o status do prestador
-            </DialogDescription>
-          </DialogHeader>
-
-          {selectedProvider && (
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-medium">Nome Completo</h4>
-                <p>{selectedProvider.profiles?.full_name}</p>
-              </div>
-              <div>
-                <h4 className="font-medium">Nome da Empresa</h4>
-                <p>{selectedProvider.business_name}</p>
-              </div>
-              <div>
-                <h4 className="font-medium">Descrição</h4>
-                <p>{selectedProvider.description}</p>
-              </div>
-              <div>
-                <h4 className="font-medium">Status Atual</h4>
-                <p>{getStatusBadge(selectedProvider.status)}</p>
-              </div>
-            </div>
+          {isLoading ? (
+            <p className="text-center py-4">Carregando provedores...</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nome da Empresa</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Telefone</TableHead>
+                  <TableHead>Endereço</TableHead>
+                  <TableHead>Data de Registro</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {providers?.map((provider) => (
+                  <TableRow key={provider.id}>
+                    <TableCell className="font-medium">
+                      {provider.business_name}
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs ${
+                          provider.status === "approved"
+                            ? "bg-green-100 text-green-800"
+                            : provider.status === "pending"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {provider.status === "approved"
+                          ? "Aprovado"
+                          : provider.status === "pending"
+                          ? "Pendente"
+                          : "Rejeitado"}
+                      </span>
+                    </TableCell>
+                    <TableCell>{provider.phone}</TableCell>
+                    <TableCell>{provider.address}</TableCell>
+                    <TableCell>
+                      {new Date(provider.created_at).toLocaleDateString("pt-BR")}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
-
-          <DialogFooter className="flex gap-2">
-            {selectedProvider?.status === "pending" && (
-              <>
-                <Button
-                  variant="destructive"
-                  onClick={() =>
-                    updateProviderStatus(selectedProvider.id, "rejected")
-                  }
-                >
-                  <XCircle className="mr-2 h-4 w-4" />
-                  Rejeitar
-                </Button>
-                <Button
-                  onClick={() =>
-                    updateProviderStatus(selectedProvider.id, "approved")
-                  }
-                >
-                  <CheckCircle className="mr-2 h-4 w-4" />
-                  Aprovar
-                </Button>
-              </>
-            )}
-            {selectedProvider?.status === "approved" && (
-              <Button
-                variant="destructive"
-                onClick={() =>
-                  updateProviderStatus(selectedProvider.id, "suspended")
-                }
-              >
-                <XCircle className="mr-2 h-4 w-4" />
-                Suspender
-              </Button>
-            )}
-            {(selectedProvider?.status === "rejected" ||
-              selectedProvider?.status === "suspended") && (
-              <Button
-                onClick={() =>
-                  updateProviderStatus(selectedProvider.id, "approved")
-                }
-              >
-                <CheckCircle className="mr-2 h-4 w-4" />
-                Reativar
-              </Button>
-            )}
-            <Button
-              variant="destructive"
-              onClick={() => selectedProvider && deleteProvider(selectedProvider.id)}
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Excluir Prestador
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <EditProviderDialog
-        provider={selectedProvider}
-        open={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
-        onSuccess={refetch}
-      />
+        </div>
+      </div>
     </div>
   );
 }
