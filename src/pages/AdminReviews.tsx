@@ -72,8 +72,13 @@ export default function AdminReviews() {
         `)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      return data as Review[];
+      if (error) {
+        console.error("Error fetching reviews:", error);
+        throw error;
+      }
+
+      // Type assertion since we know the structure matches our Review interface
+      return data as unknown as Review[];
     },
   });
 
@@ -181,7 +186,9 @@ export default function AdminReviews() {
             {reviews?.map((review) => (
               <TableRow key={review.id}>
                 <TableCell>{review.service.title}</TableCell>
-                <TableCell>{review.profiles.full_name || review.profiles.email}</TableCell>
+                <TableCell>
+                  {review.profiles.full_name || review.profiles.email}
+                </TableCell>
                 <TableCell>
                   {review.rating}/5
                   {review.comment && (
@@ -193,7 +200,10 @@ export default function AdminReviews() {
                 <TableCell>{getStatusBadge(review.status)}</TableCell>
                 <TableCell>
                   {review.review_reports.length > 0 ? (
-                    <Badge variant="default" className="cursor-pointer hover:bg-primary/80">
+                    <Badge
+                      variant="default"
+                      className="cursor-pointer hover:bg-primary/80"
+                    >
                       {review.review_reports.length} denúncia(s)
                     </Badge>
                   ) : (
@@ -241,7 +251,8 @@ export default function AdminReviews() {
               <div>
                 <h4 className="font-medium">Usuário</h4>
                 <p>
-                  {selectedReview.profiles.full_name || selectedReview.profiles.email}
+                  {selectedReview.profiles.full_name ||
+                    selectedReview.profiles.email}
                 </p>
               </div>
 
@@ -258,10 +269,7 @@ export default function AdminReviews() {
                   <h4 className="mb-4 font-medium">Denúncias</h4>
                   <div className="space-y-4">
                     {selectedReview.review_reports.map((report) => (
-                      <div
-                        key={report.id}
-                        className="rounded-lg border p-4"
-                      >
+                      <div key={report.id} className="rounded-lg border p-4">
                         <div className="mb-2 flex items-center justify-between">
                           <span className="text-sm font-medium">
                             {report.reporter.full_name || report.reporter.email}
@@ -304,18 +312,14 @@ export default function AdminReviews() {
             {selectedReview?.status === "active" ? (
               <Button
                 variant="destructive"
-                onClick={() =>
-                  updateReviewStatus(selectedReview.id, "removed")
-                }
+                onClick={() => updateReviewStatus(selectedReview.id, "removed")}
               >
                 <XCircle className="mr-2 h-4 w-4" />
                 Remover Avaliação
               </Button>
             ) : (
               <Button
-                onClick={() =>
-                  updateReviewStatus(selectedReview?.id || "", "active")
-                }
+                onClick={() => updateReviewStatus(selectedReview?.id || "", "active")}
               >
                 <CheckCircle className="mr-2 h-4 w-4" />
                 Reativar Avaliação
