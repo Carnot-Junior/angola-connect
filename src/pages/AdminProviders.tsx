@@ -10,20 +10,42 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Settings, CreditCard } from "lucide-react";
+import { Settings, CreditCard, UserCheck, UserX, Edit } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
+import { EditProviderDialog } from "@/components/admin/EditProviderDialog";
+
+interface Provider {
+  id: string;
+  user_id: string;
+  business_name: string | null;
+  description: string | null;
+  status: "pending" | "approved" | "rejected" | "suspended";
+  verified: boolean | null;
+  phone: string | null;
+  address: string | null;
+  profiles: {
+    full_name: string | null;
+    email: string | null;
+  } | null;
+}
 
 export default function AdminProviders() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
-  const { data: providers, isLoading } = useQuery({
+  const { data: providers, refetch } = useQuery({
     queryKey: ["providers"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("providers")
-        .select("*")
+        .select(`
+          *,
+          profiles:profiles!providers_user_id_fkey(full_name, email)
+        `)
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -35,9 +57,51 @@ export default function AdminProviders() {
         return [];
       }
 
-      return data;
+      return data as Provider[];
     },
   });
+
+  const updateProviderStatus = async (providerId: string, status: Provider["status"]) => {
+    const { error } = await supabase
+      .from("providers")
+      .update({ status })
+      .eq("id", providerId);
+
+    if (error) {
+      toast({
+        title: "Erro ao atualizar status",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Status atualizado",
+      description: `O prestador foi ${
+        status === "approved"
+          ? "aprovado"
+          : status === "rejected"
+          ? "rejeitado"
+          : "suspenso"
+      } com sucesso.`,
+    });
+
+    refetch();
+  };
+
+  const getStatusBadge = (status: Provider["status"]) => {
+    switch (status) {
+      case "approved":
+        return <Badge className="bg-green-500">Aprovado</Badge>;
+      case "rejected":
+        return <Badge variant="destructive">Rejeitado</Badge>;
+      case "suspended":
+        return <Badge variant="destructive">Suspenso</Badge>;
+      default:
+        return <Badge variant="secondary">Pendente</Badge>;
+    }
+  };
 
   return (
     <div className="container mx-auto py-8">
@@ -48,65 +112,97 @@ export default function AdminProviders() {
             <CreditCard className="mr-2 h-4 w-4" />
             Gerenciar Planos
           </Button>
-          <Button variant="outline" onClick={() => navigate("/")}>
+          <Button variant="outline" onClick={() => navigate("/admin/reviews")}>
             <Settings className="mr-2 h-4 w-4" />
-            Configurações
+            Gerenciar Avaliações
           </Button>
         </div>
       </div>
 
       <div className="bg-white rounded-lg shadow">
         <div className="p-6">
-          <h2 className="text-xl font-semibold mb-6">Provedores</h2>
+          <h2 className="text-xl font-semibold mb-6">Prestadores de Serviço</h2>
 
-          {isLoading ? (
-            <p className="text-center py-4">Carregando provedores...</p>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome da Empresa</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Telefone</TableHead>
-                  <TableHead>Endereço</TableHead>
-                  <TableHead>Data de Registro</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {providers?.map((provider) => (
-                  <TableRow key={provider.id}>
-                    <TableCell className="font-medium">
-                      {provider.business_name}
-                    </TableCell>
-                    <TableCell>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs ${
-                          provider.status === "approved"
-                            ? "bg-green-100 text-green-800"
-                            : provider.status === "pending"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nome / Empresa</TableHead>
+                <TableHead>Contato</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Endereço</TableHead>
+                <TableHead>Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {providers?.map((provider) => (
+                <TableRow key={provider.id}>
+                  <TableCell>
+                    <div>
+                      <p className="font-medium">
+                        {provider.business_name || "Não informado"}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {provider.profiles?.full_name}
+                      </p>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="space-y-1">
+                      <p className="text-sm">{provider.profiles?.email}</p>
+                      <p className="text-sm">{provider.phone}</p>
+                    </div>
+                  </TableCell>
+                  <TableCell>{getStatusBadge(provider.status)}</TableCell>
+                  <TableCell>{provider.address || "Não informado"}</TableCell>
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedProvider(provider);
+                          setEditDialogOpen(true);
+                        }}
                       >
-                        {provider.status === "approved"
-                          ? "Aprovado"
-                          : provider.status === "pending"
-                          ? "Pendente"
-                          : "Rejeitado"}
-                      </span>
-                    </TableCell>
-                    <TableCell>{provider.phone}</TableCell>
-                    <TableCell>{provider.address}</TableCell>
-                    <TableCell>
-                      {new Date(provider.created_at).toLocaleDateString("pt-BR")}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      {provider.status !== "approved" && (
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={() =>
+                            updateProviderStatus(provider.id, "approved")
+                          }
+                        >
+                          <UserCheck className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {provider.status !== "suspended" && (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() =>
+                            updateProviderStatus(provider.id, "suspended")
+                          }
+                        >
+                          <UserX className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </div>
+
+      <EditProviderDialog
+        provider={selectedProvider}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        onSuccess={refetch}
+      />
     </div>
   );
 }
