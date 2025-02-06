@@ -62,7 +62,7 @@ export default function AdminReviews() {
         .select(`
           *,
           service:services(title),
-          profiles:profiles!reviews_user_id_fkey(full_name, email),
+          profiles:profiles!reviews_user_id_profiles_fkey(full_name, email),
           review_reports(
             id,
             reason,

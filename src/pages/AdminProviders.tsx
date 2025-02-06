@@ -28,7 +28,7 @@ interface Provider {
   profiles: {
     full_name: string | null;
     email: string | null;
-  } | null;
+  };
 }
 
 export default function AdminProviders() {
@@ -44,7 +44,7 @@ export default function AdminProviders() {
         .from("providers")
         .select(`
           *,
-          profiles:profiles!providers_user_id_fkey(full_name, email)
+          profiles:profiles!providers_user_id_profiles_fkey(full_name, email)
         `)
         .order("created_at", { ascending: false });
 
