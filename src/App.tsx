@@ -10,6 +10,7 @@ import ProviderVerification from "@/pages/ProviderVerification";
 import ProviderPlans from "@/pages/ProviderPlans";
 import AdminProviders from "@/pages/AdminProviders";
 import AdminPlans from "@/pages/AdminPlans";
+import AdminModeration from "@/pages/AdminModeration";
 
 function App() {
   return (
@@ -56,6 +57,14 @@ function App() {
               element={
                 <AuthGuard requireAdmin>
                   <AdminPlans />
+                </AuthGuard>
+              }
+            />
+            <Route
+              path="/admin/moderation"
+              element={
+                <AuthGuard requireAdmin>
+                  <AdminModeration />
                 </AuthGuard>
               }
             />
