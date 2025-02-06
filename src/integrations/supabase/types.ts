@@ -129,6 +129,8 @@ export type Database = {
           comment: string | null
           created_at: string
           id: string
+          moderation_notes: string | null
+          moderation_status: string | null
           rating: number | null
           service_id: string
           status: string | null
@@ -138,6 +140,8 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: string
+          moderation_notes?: string | null
+          moderation_status?: string | null
           rating?: number | null
           service_id: string
           status?: string | null
@@ -147,6 +151,8 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: string
+          moderation_notes?: string | null
+          moderation_status?: string | null
           rating?: number | null
           service_id?: string
           status?: string | null
@@ -169,12 +175,52 @@ export type Database = {
           },
         ]
       }
+      service_images: {
+        Row: {
+          created_at: string
+          id: string
+          moderation_notes: string | null
+          moderation_status: string | null
+          service_id: string | null
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          moderation_notes?: string | null
+          moderation_status?: string | null
+          service_id?: string | null
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          moderation_notes?: string | null
+          moderation_status?: string | null
+          service_id?: string | null
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_images_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       services: {
         Row: {
           category: string | null
           created_at: string
           description: string | null
           id: string
+          moderation_notes: string | null
+          moderation_status: string | null
           price_range: string | null
           provider_id: string
           status: Database["public"]["Enums"]["provider_status"] | null
@@ -186,6 +232,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          moderation_notes?: string | null
+          moderation_status?: string | null
           price_range?: string | null
           provider_id: string
           status?: Database["public"]["Enums"]["provider_status"] | null
@@ -197,6 +245,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          moderation_notes?: string | null
+          moderation_status?: string | null
           price_range?: string | null
           provider_id?: string
           status?: Database["public"]["Enums"]["provider_status"] | null
